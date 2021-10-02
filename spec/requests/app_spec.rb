@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'APP API', type: :request do
   # initialize test data
-  let!(:app) { create_list(:app, 10) }
-  let(:app_token) { app.first.token }
+  let!(:app_test) { create_list(:app, 10) }
+  let(:app_token_test) { app_test.first.token }
 
   # Test suite for GET /app
   describe 'GET /app' do
@@ -25,12 +25,12 @@ RSpec.describe 'APP API', type: :request do
 
   # Test suite for GET /app/:id
   describe 'GET /app/:id' do
-    before { get "/app/#{app_token}" }
+    before { get "/app/#{app_token_test}" }
 
     context 'when the record exists' do
       it 'returns the app' do
         expect(json).not_to be_empty
-        expect(json['token']).to eq(app_token)
+        expect(json['token']).to eq(app_token_test)
       end
 
       it 'returns status code 200' do
@@ -39,14 +39,14 @@ RSpec.describe 'APP API', type: :request do
     end
 
     context 'when the record does not exist' do
-      let(:app_token) { '10599bd1-5b74-4ab5-a161-ca4279e3c913' }
+      let(:app_token_test) { '10599bd1-5b74-4ab5-a161-ca4279e3c913' }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
       end
 
       it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find app/)
+        expect(response.body).to match(/App Not Found/)
       end
     end
   end
@@ -54,14 +54,14 @@ RSpec.describe 'APP API', type: :request do
   # Test suite for POST /app
   describe 'POST /app' do
     # valid payload
-    let(:valid_attributes) { { name: 'Learn Elm', app_token: '10599bd1-5b74-4ab5-a161-ca4279e3c913' } }
+    # let(:name) { Faker::Lorem.word }
 
     context 'when the request is valid' do
-      before { post '/app', params: valid_attributes }
+      before { post '/app', params: { name: 'Test App Name' } }
 
       it 'creates a app' do
-        expect(json['name']).to eq('Learn Elm')
-        expect(json['token']).to eq('10599bd1-5b74-4ab5-a161-ca4279e3c913')
+        expect(json['name']).to eq('Test App Name')
+        # expect(json['token']).to eq('10599bd1-5b74-4ab5-a161-ca4279e3c913')
       end
 
       it 'returns status code 201' do
@@ -83,7 +83,7 @@ RSpec.describe 'APP API', type: :request do
     let(:valid_attributes) { { name: 'Shopping' } }
 
     context 'when the record exists' do
-      before { put "/app/#{app_token}", params: valid_attributes }
+      before { put "/app/#{app_token_test}", params: valid_attributes }
 
       it 'updates the record' do
         expect(response.body).to be_empty
@@ -94,5 +94,4 @@ RSpec.describe 'APP API', type: :request do
       end
     end
   end
-
 end
