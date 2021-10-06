@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-class AppController < ApplicationController
-  before_action :set_app
-  include Response
-  include ExceptionHandler
-  # attr_accessor :token, :name
+class AppsController < ApplicationController
+  before_action :set_app, only: %i[show update]
 
   # GET /app
   def index
     @apps = App.all
-    # TODO: Use Serializer to predefine output fields
-    json_response(@apps)
+    render json: @apps, include: ['chats']
   end
 
   # GET /app/:token
   def show
-    @app ? json_response(@app) : json_response('App Not Found', :not_found)
+    if @app
+      render json: @app, include: ['chats']
+    else
+      render json: { message: 'App Not Found' }, status: :not_found
+    end
   end
 
   # POST /app
@@ -23,12 +23,17 @@ class AppController < ApplicationController
     json_response('Missing Parameter name', :bad_request) unless params[:name].present?
     @app = App.create(app_params)
     @app.token = generate_random_token
-    json_response(@app, :created) if @app.save
+    if @app.save
+      RedisCache.redis.set(@app.token, 0)
+      render json: @app
+    else
+      render json: { message: 'Failed Creating App' }, status: :not_found
+    end
   end
 
   # PUT /app/:token
   def update
-    json_response('App Not Found', :not_found) if @app.nil?
+    render json: { message: 'Failed Creating App' }, status: :not_found if @app.nil?
     @app.update(app_params)
     head :no_content
   end
