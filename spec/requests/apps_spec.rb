@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe 'APP API', type: :request do
+RSpec.describe 'APPS API', type: :request do
   # initialize test data
   let!(:app_test) { create_list(:app, 10) }
   let(:app_token_test) { app_test.first.token }
 
   # Test suite for GET /app
-  describe 'GET /app' do
+  describe 'GET /apps' do
     # make HTTP get request before each example
-    before { get '/app' }
+    before { get '/apps' }
 
     it 'returns app' do
       # Note `json` is a custom helper to parse JSON responses
@@ -24,8 +24,8 @@ RSpec.describe 'APP API', type: :request do
   end
 
   # Test suite for GET /app/:id
-  describe 'GET /app/:id' do
-    before { get "/app/#{app_token_test}" }
+  describe 'GET /apps/:id' do
+    before { get "/apps/#{app_token_test}" }
 
     context 'when the record exists' do
       it 'returns the app' do
@@ -52,12 +52,12 @@ RSpec.describe 'APP API', type: :request do
   end
 
   # Test suite for POST /app
-  describe 'POST /app' do
+  describe 'POST /apps' do
     # valid payload
     # let(:name) { Faker::Lorem.word }
 
     context 'when the request is valid' do
-      before { post '/app', params: { name: 'Test App Name' } }
+      before { post '/apps', params: { name: 'Test App Name' } }
 
       it 'creates a app' do
         expect(json['name']).to eq('Test App Name')
@@ -70,7 +70,7 @@ RSpec.describe 'APP API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/app', params: { name: nil } }
+      before { post '/apps', params: { name: nil } }
 
       it 'returns status code 400' do
         expect(response).to have_http_status(400)
@@ -79,11 +79,11 @@ RSpec.describe 'APP API', type: :request do
   end
 
   # Test suite for PUT /app/:token
-  describe 'PUT /app/:token' do
+  describe 'PUT /apps/:token' do
     let(:valid_attributes) { { name: 'Shopping' } }
 
     context 'when the record exists' do
-      before { put "/app/#{app_token_test}", params: valid_attributes }
+      before { put "/apps/#{app_token_test}", params: valid_attributes }
 
       it 'updates the record' do
         expect(response.body).to be_empty
