@@ -7,6 +7,7 @@ RSpec.describe Chat, type: :model do
 
   # ensure Chat model has a m:1 relationship with the App model
   it { should belong_to(:app) }
+
   # Validation tests
   # ensure columns title and created_by are present before saving
   it { should validate_presence_of(:app_token) }

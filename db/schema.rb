@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_01_125453) do
+ActiveRecord::Schema.define(version: 2021_10_03_145558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_125453) do
   create_table "apps", force: :cascade do |t|
     t.string "token", null: false
     t.string "name", null: false
-    t.decimal "chat_count", default: "0.0"
+    t.integer "chat_count", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["token"], name: "index_apps_on_token", unique: true
@@ -26,13 +26,21 @@ ActiveRecord::Schema.define(version: 2021_10_01_125453) do
 
   create_table "chats", force: :cascade do |t|
     t.string "app_token"
-    t.decimal "message_count", default: "0.0"
-    t.decimal "chat_number"
-    t.string "chat_number_app_token", null: false
+    t.integer "message_count", default: 0
+    t.integer "chat_number", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["chat_number_app_token"], name: "index_chats_on_chat_number_app_token", unique: true
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.integer "message_number"
+    t.string "body"
+    t.integer "chat_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
   add_foreign_key "chats", "apps", column: "app_token", primary_key: "token"
+  add_foreign_key "messages", "chats"
 end
