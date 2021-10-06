@@ -6,8 +6,8 @@ class ChatsController < ApplicationController
   # before_action :set_chats, only: %i[show]
 
   def index
-    if @chats = @app.chats
-      render json: @chats
+    if @app.chats
+      render json: @app.chats
     else
       render json: { message: 'App/Chat Not Found' }, status: :not_found
     end

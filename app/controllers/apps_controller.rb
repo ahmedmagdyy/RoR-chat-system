@@ -5,7 +5,7 @@ class AppsController < ApplicationController
 
   # GET /app
   def index
-    @apps = App.all
+    @apps = App.all.includes(:chats)
     render json: @apps, include: ['chats']
   end
 
