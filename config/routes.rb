@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   mount Sidekiq::Web, at: '/sidekiq'
   resources :apps, param: :token, only: %i[index create show update] do
-    resources :chats, param: :chat_number, only: %i[index create show update]
+    resources :chats, param: :number, only: %i[index create show] do
+      resources :messages, param: :message_number, only: %i[index create show]
+    end
   end
 end
