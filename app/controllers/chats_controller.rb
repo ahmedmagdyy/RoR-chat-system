@@ -6,7 +6,7 @@ class ChatsController < ApplicationController
   # before_action :set_chats, only: %i[show]
 
   def index
-    if @app.chats
+    if @app
       render json: @app.chats
     else
       render json: { message: 'App/Chat Not Found' }, status: :not_found
@@ -14,15 +14,15 @@ class ChatsController < ApplicationController
   end
 
   def show
-    if @chat = @app.chats.find_by(chat_number: params[:chat_number])
+    if (@chat = @app.chats.find_by(chat_number: params[:number]))
       render json: @chat
     else
-      render json: { message: 'App or Chat Not Found' }, status: :not_found
+      render json: { message: 'Chat Not Found' }, status: :not_found
     end
   end
 
   def create
-    render json: { message: 'App not found!'}, status: :not_found if @app.nil?
+    render json: { message: 'App not found!' }, status: :not_found if @app.nil?
     chat_number = RedisCache.redis.incr(params[:app_token])
     ChatWorker.perform_async(chat_number, params[:app_token])
     render json: { chat_number: chat_number }
