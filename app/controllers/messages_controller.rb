@@ -35,6 +35,12 @@ class MessagesController < ApplicationController
     render json: @message if @message.save!
   end
 
+  def search
+    chat_number_app_token = "#{params[:chat_number]}_#{params[:app_token]}"
+    @results = Message.search(params[:query], chat_number_app_token) unless params[:query].blank?
+    render json: @results
+  end
+
   private
 
   def message_param
