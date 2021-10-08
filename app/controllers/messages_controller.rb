@@ -2,8 +2,6 @@
 
 class MessagesController < ApplicationController
   before_action :set_current_chat
-  # before_action :set_chat, only: %i[index]
-  # before_action :set_chats, only: %i[show]
 
   def index
     if @chat
@@ -14,7 +12,7 @@ class MessagesController < ApplicationController
   end
 
   def show
-    if (@message = @chat.message.find_by(message_number: params[:message_number]))
+    if (@message = @chat.messages.find_by(message_number: params[:message_number]))
       render json: @message
     else
       render json: { message: 'Message Not Found' }, status: :not_found
@@ -27,6 +25,14 @@ class MessagesController < ApplicationController
     msg_number = RedisCache.redis.incr(chat_number_app_token)
     MessageWorker.perform_async(chat_number_app_token, params[:body], msg_number)
     render json: { message_number: msg_number }
+  end
+
+  def update
+    render json: { message: 'Chat not found!' }, status: :not_found if @chat.nil?
+    @message = @chat.messages.find_by(message_number: params[:message_number])
+    @message.body = params[:body]
+    puts @message
+    render json: @message if @message.save!
   end
 
   private
