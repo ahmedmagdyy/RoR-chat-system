@@ -91,5 +91,6 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning do
       example.run
     end
+    Sidekiq::Worker.clear_all
   end
 end

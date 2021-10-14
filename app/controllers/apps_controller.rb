@@ -3,13 +3,13 @@
 class AppsController < ApplicationController
   before_action :set_app, only: %i[show update]
 
-  # GET /app
+  # GET /apps
   def index
     @apps = App.all.includes(:chats)
     render json: @apps, include: ['chats']
   end
 
-  # GET /app/:token
+  # GET /apps/:token
   def show
     if @app
       render json: @app, include: ['chats']
@@ -18,20 +18,20 @@ class AppsController < ApplicationController
     end
   end
 
-  # POST /app
+  # POST /apps
   def create
-    json_response('Missing Parameter name', :bad_request) unless params[:name].present?
+    render json: { message: 'Missing Parameter name' }, status: :bad_request unless params[:name].present?
     @app = App.create(app_params)
     @app.token = generate_random_token
     if @app.save
       RedisCache.redis.set(@app.token, 0)
-      render json: @app
+      render json: @app, status: :created
     else
-      render json: { message: 'Failed Creating App' }, status: :not_found
+      [{ message: 'Failed Creating App' }, status: :bad_request]
     end
   end
 
-  # PUT /app/:token
+  # PUT /apps/:token
   def update
     render json: { message: 'Failed Creating App' }, status: :not_found if @app.nil?
     @app.update(app_params)

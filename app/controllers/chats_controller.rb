@@ -20,10 +20,13 @@ class ChatsController < ApplicationController
   end
 
   def create
-    render json: { message: 'App not found!' }, status: :not_found if @app.nil?
-    chat_number = RedisCache.redis.incr(params[:app_token])
-    ChatWorker.perform_async(chat_number, params[:app_token])
-    render json: { chat_number: chat_number }
+    if @app.nil?
+      render json: { message: 'App not found!' }, status: :not_found
+    else
+      chat_number = RedisCache.redis.incr(params[:app_token])
+      ChatWorker.perform_async(chat_number, params[:app_token])
+      render json: { chat_number: chat_number }, status: :created
+    end
   end
 
   private
