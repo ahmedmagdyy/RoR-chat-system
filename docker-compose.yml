@@ -1,0 +1,94 @@
+version: '3'
+
+networks:
+  development:
+  test:
+
+volumes:
+  db_data:
+  gem_cache:
+  shared_data:
+
+services:
+  rails_doc_redis:
+    image: redis:alpine
+    command: redis-server
+    networks:
+      - development
+      - test
+    volumes:
+      - shared_data:/var/shared/redis
+    ports:
+      - '6379:6379'
+
+  rails_doc_db:
+    image: postgres:alpine
+    container_name: rails_doc_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - shared_data:/var/shared
+    networks:
+      - development
+      - test
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: admin
+    ports:
+      - '5432:5432'
+
+  rails_doc_sidekiq:
+    depends_on:
+      - rails_doc_redis
+    networks:
+      - development
+      - test
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/var/app
+      - gem_cache:/usr/local/bundle/gems
+    env_file: .env.dev
+
+  rails_doc_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    volumes:
+      - .:/var/app
+    networks:
+      - development
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+    ports:
+      - '9200:9200'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  rails_doc_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rails_doc_app
+    volumes:
+      - .:/var/app
+      - shared_data:/var/shared
+      - gem_cache:/usr/local/bundle/gems
+    networks:
+      - development
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    tty: true
+    env_file: .env.dev
+    entrypoint: dev-entrypoint.sh
+    command: rails server -p 3000 -b 0.0.0.0
+    environment:
+      RAILS_ENV: development
+    depends_on:
+      - rails_doc_db
+      - rails_doc_redis
+      - rails_doc_sidekiq
+      - rails_doc_elasticsearch
