@@ -1,4 +1,10 @@
-require 'rails_helper'
-RSpec.describe ChatWorker, type: :worker do
-  pending "add some examples to (or delete) #{__FILE__}"
-end
+# # frozen_string_literal: true
+#
+# require 'rails_helper'
+# require 'rails_helper'
+# require 'sidekiq/testing'
+# Sidekiq::Testing.fake!
+#
+# RSpec.describe ChatWorker, type: :worker do
+#
+# end
