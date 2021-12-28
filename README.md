@@ -1,6 +1,6 @@
 # README
-make sure you have docker & docker-compose installed
-clone repo
+* make sure you have docker & docker-compose installed
+* clone repo
 run 
 ```
 docker-compose up -d
